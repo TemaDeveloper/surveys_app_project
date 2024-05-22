@@ -13,14 +13,14 @@ class ProgressBar extends StatelessWidget {
       children: List.generate(totalPages, (index) {
         bool isSelected = currentPage == index + 1;
         return Container(
-          margin: EdgeInsets.symmetric(horizontal: 4.0),
+          margin: const EdgeInsets.symmetric(horizontal: 4.0),
           child: CircleAvatar(
-            radius: isSelected ? 15 : 10,
+            radius: isSelected ? 15 : 5,
             backgroundColor: isSelected ? Colors.blue : Colors.grey,
             child: isSelected
                 ? Text(
                     (index + 1).toString(),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),

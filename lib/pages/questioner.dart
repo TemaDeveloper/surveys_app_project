@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import '/widgets/progress_bar.dart';
 import '/widgets/question_text.dart';
 import '/widgets/navigation_buttons.dart';
-import 'questioner_base_layout.dart';
-import 'question_answer_struct.dart'; 
-import 'answer_store.dart';
+import '../question_answer_builder/questioner_base_layout.dart';
+import '../question_answer_builder/question_answer_struct.dart';
+import '../question_answer_builder/answer_store.dart';
 
 class QuestionnaireScreen extends StatefulWidget {
+  const QuestionnaireScreen({super.key});
+
   @override
   _QuestionnaireScreenState createState() => _QuestionnaireScreenState();
 }
@@ -46,7 +48,23 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     ),
   ];
 
+  bool get isAnswerSelected {
+    final currentQuestion = _questions[_currentPage];
+    final selectedAnswers = _getSavedAnswers(currentQuestion.questionId);
+    return selectedAnswers.isNotEmpty;
+  }
+
   void _nextPage() {
+    final currentQuestion = _questions[_currentPage];
+    final selectedAnswers = _getSavedAnswers(currentQuestion.questionId);
+
+    if (selectedAnswers.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please Choose at least one option')),
+      );
+      return;
+    }
+
     if (_currentPage < _questions.length - 1) {
       setState(() {
         _currentPage++;
@@ -72,6 +90,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
   void _saveAnswers(String questionId, List<String> selectedAnswers) {
     AnswerStore().saveAnswer(questionId, selectedAnswers);
+    setState(() {}); // Rebuild to reflect answer selection
   }
 
   List<String> _getSavedAnswers(String questionId) {
@@ -83,11 +102,15 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('NightCaps Questionnaire'),
+        automaticallyImplyLeading: false,
       ),
       body: Stack(
         children: [
           Column(
             children: [
+              const Text("NightCaps Sleeping Habits Questionnaire", style: TextStyle(color: Colors.blue)),
+              const Text("Fighting sleep deprivation, one day at a time", style: TextStyle(color: Colors.orange)),
+              const SizedBox(height: 10),
               ProgressBar(
                 currentPage: _currentPage + 1,
                 totalPages: _questions.length,
@@ -114,6 +137,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
             totalPages: _questions.length,
             onPrevious: _previousPage,
             onNext: _nextPage,
+            isAnswerSelected: isAnswerSelected,
           ),
         ],
       ),

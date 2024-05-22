@@ -55,6 +55,14 @@ class _QuestionPageState extends State<QuestionPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        if (widget.questionAnswer.isMultipleChoice)
+          const Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Text(
+              "(Select All That Apply)",
+              style: TextStyle(fontSize: 16.0, color: Colors.orange),
+            ),
+          ),
         Wrap(
           spacing: 10.0,
           runSpacing: 10.0,
@@ -72,5 +80,3 @@ class _QuestionPageState extends State<QuestionPage> {
     );
   }
 }
-
-
