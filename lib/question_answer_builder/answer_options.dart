@@ -28,7 +28,8 @@ class AnswerOption extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 color: isSelected ? Colors.blue : Colors.grey,
-                shape: BoxShape.circle,
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(15.0),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -41,7 +42,7 @@ class AnswerOption extends StatelessWidget {
             ),
             SizedBox(height: 10.0),
             CircleAvatar(
-              radius: 10,
+              radius: 5,
               backgroundColor: isSelected ? Colors.blue : Colors.grey,
             ),
           ],

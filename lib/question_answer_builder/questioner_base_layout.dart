@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'answer_options.dart'; 
-import 'question_answer_struct.dart';
+import '../pages/question_answer_struct.dart';
 
 class QuestionPage extends StatefulWidget {
   final QuestionAnswer questionAnswer;
@@ -32,19 +32,35 @@ class _QuestionPageState extends State<QuestionPage> {
 
   void _onAnswerSelected(String answer) {
     setState(() {
-      if (widget.questionAnswer.isMultipleChoice) {
-        if (answer == 'None') {
-          selectedAnswers = [answer];
-        } else {
-          if (selectedAnswers.contains(answer)) {
-            selectedAnswers.remove(answer);
-          } else {
-            selectedAnswers.add(answer);
-            selectedAnswers.remove('None');
+      if (answer == 'None') {
+        selectedAnswers = ['None'];
+      } else {
+        if (selectedAnswers.contains('None')) {
+          selectedAnswers.remove('None');
+        }
+
+        // Handle pair logic
+        if (widget.questionAnswer.pairs != null) {
+          for (var pair in widget.questionAnswer.pairs!) {
+            if (pair.contains(answer)) {
+              for (var option in pair) {
+                if (option != answer) {
+                  selectedAnswers.remove(option);
+                }
+              }
+            }
           }
         }
-      } else {
-        selectedAnswers = [answer];
+
+        if (selectedAnswers.contains(answer)) {
+          selectedAnswers.remove(answer);
+        } else {
+          if (widget.questionAnswer.selectionType == SelectionType.Single) {
+            selectedAnswers = [answer];
+          } else {
+            selectedAnswers.add(answer);
+          }
+        }
       }
       _saveAnswers();
     });
@@ -55,9 +71,9 @@ class _QuestionPageState extends State<QuestionPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (widget.questionAnswer.isMultipleChoice)
-          const Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
+        if (widget.questionAnswer.selectionType == SelectionType.Multiple)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
             child: Text(
               "(Select All That Apply)",
               style: TextStyle(fontSize: 16.0, color: Colors.orange),
@@ -70,7 +86,7 @@ class _QuestionPageState extends State<QuestionPage> {
             return AnswerOption(
               answer: answer,
               isSelected: selectedAnswers.contains(answer),
-              isMultipleChoice: widget.questionAnswer.isMultipleChoice,
+              isMultipleChoice: widget.questionAnswer.selectionType != SelectionType.Single,
               onSelected: _onAnswerSelected,
             );
           }).toList(),

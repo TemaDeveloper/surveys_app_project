@@ -3,12 +3,10 @@ import '/widgets/progress_bar.dart';
 import '/widgets/question_text.dart';
 import '/widgets/navigation_buttons.dart';
 import '../question_answer_builder/questioner_base_layout.dart';
-import '../question_answer_builder/question_answer_struct.dart';
+import 'question_answer_struct.dart';
 import '../question_answer_builder/answer_store.dart';
 
 class QuestionnaireScreen extends StatefulWidget {
-  const QuestionnaireScreen({super.key});
-
   @override
   _QuestionnaireScreenState createState() => _QuestionnaireScreenState();
 }
@@ -19,33 +17,44 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
   final List<QuestionAnswer> _questions = [
     QuestionAnswer(
-      question:
-          'Did you take your NightCaps when you brushed your teeth last night?',
+      question: 'Did you take your NightCaps when you brushed your teeth last night?',
       answers: ['Yes', 'No'],
-      isMultipleChoice: false,
+      selectionType: SelectionType.Single,
       questionId: 'q1',
       pageIndex: 1,
     ),
     QuestionAnswer(
       question: 'How do you feel this morning?',
       answers: ['Fantastic', 'Pretty Good', 'Okay', 'Not Great', 'Exhausted'],
-      isMultipleChoice: false,
+      selectionType: SelectionType.Single,
       questionId: 'q2',
       pageIndex: 2,
     ),
     QuestionAnswer(
       question: 'What screens did you watch within 1 hour of going to bed?',
       answers: ['TV', 'Computer', 'E-reader', 'Phone', 'None'],
-      isMultipleChoice: true,
+      selectionType: SelectionType.Multiple,
       questionId: 'q3',
       pageIndex: 3,
     ),
     QuestionAnswer(
-      question: 'Did you have/do any of the following within 2 hours of bed?',
-      answers: ['Smoke', 'Caffeine', 'Alcohol', 'Big Meal', 'Exercise', 'None'],
-      isMultipleChoice: true,
+      question: 'What was your bedroom like when you went to bed?',
+      answers: ['Light', 'Dark', 'Warm', 'Cool', 'Loud', 'Quiet'],
+      pairs: [
+        ['Light', 'Dark'],
+        ['Warm', 'Cool'],
+        ['Loud', 'Quiet']
+      ],
+      selectionType: SelectionType.AtLeastOne,
       questionId: 'q4',
       pageIndex: 4,
+    ),
+    QuestionAnswer(
+      question: 'Did you have / do any of the following within 2 hours of bed?',
+      answers: ['Smoke', 'Coffein', 'Alcohole', 'Big Meal', 'Exercise', 'None'],
+      selectionType: SelectionType.Multiple,
+      questionId: 'q5',
+      pageIndex: 5,
     ),
   ];
 
@@ -61,7 +70,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
     if (selectedAnswers.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please Choose at least one option')),
+        const SnackBar(content: Text('Please choose at least one option')),
       );
       return;
     }
@@ -100,55 +109,47 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        // Prevent back navigation
-        return false;
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('NightCaps Questionnaire'),
-          automaticallyImplyLeading: false,
-        ),
-        body: Stack(
-          children: [
-            Column(
-              children: [
-                const Text("NightCaps Sleeping Habits Questionnaire",
-                    style: TextStyle(color: Colors.blue)),
-                const Text("Fighting sleep deprivation, one day at a time",
-                    style: TextStyle(color: Colors.orange)),
-                const SizedBox(height: 10),
-                ProgressBar(
-                  currentPage: _currentPage + 1,
-                  totalPages: _questions.length,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('NightCaps Questionnaire'),
+        automaticallyImplyLeading: false, // Remove the back button
+      ),
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              const Text("NightCaps Sleeping Habits Questionnaire", style: TextStyle(color: Colors.blue)),
+              const Text("Fighting sleep deprivation, one day at a time", style: TextStyle(color: Colors.orange)),
+              const SizedBox(height: 10),
+              ProgressBar(
+                currentPage: _currentPage + 1,
+                totalPages: _questions.length,
+              ),
+              QuestionText(question: _questions[_currentPage].question),
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: _questions.length,
+                  itemBuilder: (context, index) {
+                    return QuestionPage(
+                      questionAnswer: _questions[index],
+                      onSave: _saveAnswers,
+                      getSavedAnswers: _getSavedAnswers,
+                    );
+                  },
                 ),
-                QuestionText(question: _questions[_currentPage].question),
-                Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: _questions.length,
-                    itemBuilder: (context, index) {
-                      return QuestionPage(
-                        questionAnswer: _questions[index],
-                        onSave: _saveAnswers,
-                        getSavedAnswers: _getSavedAnswers,
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-            NavigationButtons(
-              currentPage: _currentPage,
-              totalPages: _questions.length,
-              onPrevious: _previousPage,
-              onNext: _nextPage,
-              isAnswerSelected: isAnswerSelected,
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+          NavigationButtons(
+            currentPage: _currentPage,
+            totalPages: _questions.length,
+            onPrevious: _previousPage,
+            onNext: _nextPage,
+            isAnswerSelected: isAnswerSelected,
+          ),
+        ],
       ),
     );
   }
