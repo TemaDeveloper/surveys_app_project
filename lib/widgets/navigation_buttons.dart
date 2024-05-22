@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:surveys_app_project/pages/finish_survey.dart';
 
 class NavigationButtons extends StatelessWidget {
   final int currentPage;
   final int totalPages;
   final VoidCallback onPrevious;
   final VoidCallback onNext;
-    final bool isAnswerSelected;
+  final bool isAnswerSelected;
 
   NavigationButtons({
     required this.currentPage,
@@ -49,12 +50,34 @@ class NavigationButtons extends StatelessWidget {
                 borderRadius: BorderRadius.circular(25.0),
                 color: isAnswerSelected ? Colors.blue : Colors.white,
               ),
-              child: TextButton(
-                onPressed: onNext,
-                child: Text(
-                  currentPage == totalPages - 1 ? 'Finish' : 'Next',
-                  style: TextStyle(
-                    color: isAnswerSelected ? Colors.white : Colors.blue,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(25.0),
+                child: ElevatedButton(
+                  onPressed: currentPage == totalPages - 1
+                      ? () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    SubmissionSuccessScreen()),
+                          );
+                        }
+                      : onNext,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors
+                        .transparent, // Transparent to show the Container color
+                    shadowColor: Colors.transparent, // Remove shadow if needed
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+                  ),
+                  child: Text(
+                    currentPage == totalPages - 1 ? 'Finish' : 'Next',
+                    style: TextStyle(
+                      color: isAnswerSelected ? Colors.white : Colors.blue,
+                      fontSize: 18,
+                    ),
                   ),
                 ),
               ),

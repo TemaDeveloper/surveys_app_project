@@ -19,7 +19,8 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
   final List<QuestionAnswer> _questions = [
     QuestionAnswer(
-      question: 'Did you take your NightCaps when you brushed your teeth last night?',
+      question:
+          'Did you take your NightCaps when you brushed your teeth last night?',
       answers: ['Yes', 'No'],
       isMultipleChoice: false,
       questionId: 'q1',
@@ -99,47 +100,55 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('NightCaps Questionnaire'),
-        automaticallyImplyLeading: false,
-      ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              const Text("NightCaps Sleeping Habits Questionnaire", style: TextStyle(color: Colors.blue)),
-              const Text("Fighting sleep deprivation, one day at a time", style: TextStyle(color: Colors.orange)),
-              const SizedBox(height: 10),
-              ProgressBar(
-                currentPage: _currentPage + 1,
-                totalPages: _questions.length,
-              ),
-              QuestionText(question: _questions[_currentPage].question),
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: _questions.length,
-                  itemBuilder: (context, index) {
-                    return QuestionPage(
-                      questionAnswer: _questions[index],
-                      onSave: _saveAnswers,
-                      getSavedAnswers: _getSavedAnswers,
-                    );
-                  },
+    return WillPopScope(
+      onWillPop: () async {
+        // Prevent back navigation
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('NightCaps Questionnaire'),
+          automaticallyImplyLeading: false,
+        ),
+        body: Stack(
+          children: [
+            Column(
+              children: [
+                const Text("NightCaps Sleeping Habits Questionnaire",
+                    style: TextStyle(color: Colors.blue)),
+                const Text("Fighting sleep deprivation, one day at a time",
+                    style: TextStyle(color: Colors.orange)),
+                const SizedBox(height: 10),
+                ProgressBar(
+                  currentPage: _currentPage + 1,
+                  totalPages: _questions.length,
                 ),
-              ),
-            ],
-          ),
-          NavigationButtons(
-            currentPage: _currentPage,
-            totalPages: _questions.length,
-            onPrevious: _previousPage,
-            onNext: _nextPage,
-            isAnswerSelected: isAnswerSelected,
-          ),
-        ],
+                QuestionText(question: _questions[_currentPage].question),
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: _questions.length,
+                    itemBuilder: (context, index) {
+                      return QuestionPage(
+                        questionAnswer: _questions[index],
+                        onSave: _saveAnswers,
+                        getSavedAnswers: _getSavedAnswers,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+            NavigationButtons(
+              currentPage: _currentPage,
+              totalPages: _questions.length,
+              onPrevious: _previousPage,
+              onNext: _nextPage,
+              isAnswerSelected: isAnswerSelected,
+            ),
+          ],
+        ),
       ),
     );
   }
