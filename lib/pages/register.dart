@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../pages/questioner.dart';
+import 'package:surveys_app_project/colors.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Auth',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: AppColors.facebookBlueMaterial,
       ),
       home: AuthPage(),
     );
@@ -27,17 +28,15 @@ class AuthPage extends StatefulWidget {
 
 class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin {
   TabController? _tabController;
-  //final FirebaseAuth _auth = FirebaseAuth.instance;
-  //final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   void _register() {
     if (_formKey.currentState!.validate()) {
-      // TODO: Perform registration logic
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Registration Successful')),
       );
@@ -60,30 +59,32 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
- //Future<void> _signInWithGoogle() async {
- //  final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
- //  final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
-
- //  if (googleAuth?.accessToken != null && googleAuth?.idToken != null) {
- //    final AuthCredential credential = GoogleAuthProvider.credential(
- //      accessToken: googleAuth!.accessToken,
- //      idToken: googleAuth.idToken,
- //    );
- //    await _auth.signInWithCredential(credential);
- //  }
- //}
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Surveys'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: 'Create Account'),
-            Tab(text: 'Log In'),
-          ],
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(250.0), // Adjust the height as needed
+        child: AppBar(
+          flexibleSpace: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                "assets/nightcaps_logo.png",
+                fit: BoxFit.contain,
+                height: 200, // Adjust the height as needed
+              ),
+            ],
+          ),
+          bottom: TabBar(
+            controller: _tabController,
+            labelColor: AppColors.facebookBlue,
+            dividerColor: AppColors.facebookBlue,
+            indicatorColor: AppColors.facebookBlue,
+            tabs: [
+              Tab(text: 'Create Account'),
+              Tab(text: 'Log In'),
+            ],
+          ),
         ),
       ),
       body: TabBarView(
@@ -98,88 +99,192 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
 
   Widget _buildCreateAccountForm() {
     return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: <Widget>[
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: 'Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _passwordController,
-                decoration: InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  } else if (value.length < 6) {
-                    return 'Password must be at least 6 characters long';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _register,
-                child: Text('Register'),
-              ),
-            ],
-          ),
+      padding: const EdgeInsets.all(16.0),
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          children: <Widget>[
+            _buildTextFormField(
+              controller: _nameController,
+              labelText: 'Name',
+              hintText: 'Enter your name',
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your name';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 20),
+            _buildTextFormField(
+              controller: _phoneController,
+              labelText: 'Phone no.',
+              hintText: 'Enter your phone',
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your phone number';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 20),
+            _buildTextFormField(
+              controller: _emailController,
+              labelText: 'Email',
+              hintText: 'Enter your email',
+              keyboardType: TextInputType.emailAddress,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your email';
+                } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                  return 'Please enter a valid email';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 20),
+            _buildTextFormField(
+              controller: _passwordController,
+              labelText: 'Password',
+              hintText: 'Enter your password',
+              obscureText: true,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your password';
+                } else if (value.length < 6) {
+                  return 'Password must be at least 6 characters long';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 20),
+            _buildStyledButton(
+              text: "Sign up",
+              onPressed: _register,
+            ),
+          ],
         ),
-      );
+      ),
+    );
   }
 
   Widget _buildLoginForm() {
     return Padding(
       padding: EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          TextField(
-            decoration: InputDecoration(labelText: 'Email'),
-          ),
-          TextField(
-            decoration: InputDecoration(labelText: 'Password', suffixIcon: Icon(Icons.visibility_off)),
-            obscureText: true,
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {},
-            child: Text('Sign In'),
-          ),
-          SizedBox(height: 20),
-          _buildGoogleSignInButton(),
-        ],
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            _buildTextFormField(
+              controller: _emailController,
+              labelText: 'Email',
+              hintText: 'Enter your email',
+              keyboardType: TextInputType.emailAddress,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your email';
+                } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                  return 'Please enter a valid email';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 20),
+            _buildTextFormField(
+              controller: _passwordController,
+              labelText: 'Password',
+              hintText: 'Enter your password',
+              obscureText: true,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your password';
+                } else if (value.length < 6) {
+                  return 'Password must be at least 6 characters long';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 20),
+            _buildStyledButton(
+              text: "Log in",
+              onPressed: () {
+                // TODO: Implement login logic
+              },
+            ),
+            SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildGoogleSignInButton() {
-    return ElevatedButton.icon(
-      // onPressed: _signInWithGoogle,
-      onPressed: (){},
-      icon: Icon(Icons.login),
-      label: Text('Sign in with Google'),
-      style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+  Widget _buildTextFormField({
+    required TextEditingController controller,
+    required String labelText,
+    required String hintText,
+    TextInputType keyboardType = TextInputType.text,
+    bool obscureText = false,
+    required String? Function(String?) validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      cursorColor: AppColors.facebookBlue,
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: labelText,
+        hintText: hintText,
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: AppColors.grey),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: AppColors.facebookBlue),
+        ),
+        labelStyle: TextStyle(color: AppColors.grey),
+      ),
+      validator: validator,
+    );
+  }
+
+  Widget _buildStyledButton({
+    required String text,
+    required VoidCallback onPressed,
+  }) {
+    return Center(
+      child: Container(
+        height: 50,
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: AppColors.facebookBlue,
+            width: 2.0,
+          ),
+          borderRadius: BorderRadius.circular(25.0),
+          color: AppColors.facebookBlue,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(25.0),
+          child: ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor:
+                  Colors.transparent, // Transparent to show the Container color
+              shadowColor: Colors.transparent, // Remove shadow if needed
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25.0),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+            ),
+            child: Text(
+              text,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

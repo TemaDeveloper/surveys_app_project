@@ -23,28 +23,18 @@ class AnswerOption extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(answer),
-            SizedBox(height: 10.0),
-            Container(
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.blue : Colors.grey,
-                shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              child: Padding(
+            //Text(answer),
+            //SizedBox(height: 10.0),
+            Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Icon(
-                  Icons.favorite, // Use a random icon here
-                  color: isSelected ? Colors.white : Colors.grey[800],
-                  size: 24.0,
+                child: Image.asset(
+                  isSelected ? "assets/active_icons/${answer}_active.png" : "assets/inactive_icons/${answer}_inactive.png", // Use a random icon here
+                  //color: isSelected ? Colors.white : Colors.grey[800],
+                  
                 ),
               ),
-            ),
-            SizedBox(height: 10.0),
-            CircleAvatar(
-              radius: 5,
-              backgroundColor: isSelected ? Colors.blue : Colors.grey,
-            ),
+            
+            
           ],
         ),
       ),

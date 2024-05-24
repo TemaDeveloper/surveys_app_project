@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:surveys_app_project/colors.dart';
 
 class ProgressBar extends StatelessWidget {
   final int currentPage;
@@ -16,7 +17,7 @@ class ProgressBar extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 4.0),
           child: CircleAvatar(
             radius: isSelected ? 15 : 5,
-            backgroundColor: isSelected ? Colors.blue : Colors.grey,
+            backgroundColor: isSelected ? AppColors.facebookBlue : Colors.grey,
             child: isSelected
                 ? Text(
                     (index + 1).toString(),

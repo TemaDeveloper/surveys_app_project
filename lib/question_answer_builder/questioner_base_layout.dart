@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:surveys_app_project/colors.dart';
 import 'answer_options.dart'; 
 import '../pages/question_answer_struct.dart';
 
@@ -6,11 +7,13 @@ class QuestionPage extends StatefulWidget {
   final QuestionAnswer questionAnswer;
   final void Function(String, List<String>) onSave;
   final List<String> Function(String) getSavedAnswers;
+  final void Function(bool)? onOptionsCountChange; // Track option count changes
 
   QuestionPage({
     required this.questionAnswer,
     required this.onSave,
     required this.getSavedAnswers,
+    this.onOptionsCountChange, // Initialize onOptionsCountChange
   });
 
   @override
@@ -24,6 +27,11 @@ class _QuestionPageState extends State<QuestionPage> {
   void initState() {
     super.initState();
     selectedAnswers = widget.getSavedAnswers(widget.questionAnswer.questionId);
+    if (widget.onOptionsCountChange != null) {
+      Future.microtask(() {
+        widget.onOptionsCountChange!(selectedAnswers.length >= 3); // Check initial count
+      });
+    }
   }
 
   void _saveAnswers() {
@@ -32,11 +40,11 @@ class _QuestionPageState extends State<QuestionPage> {
 
   void _onAnswerSelected(String answer) {
     setState(() {
-      if (answer == 'None') {
-        selectedAnswers = ['None'];
+      if (answer == 'none') {
+        selectedAnswers = ['none'];
       } else {
-        if (selectedAnswers.contains('None')) {
-          selectedAnswers.remove('None');
+        if (selectedAnswers.contains('none')) {
+          selectedAnswers.remove('none');
         }
 
         // Handle pair logic
@@ -63,6 +71,11 @@ class _QuestionPageState extends State<QuestionPage> {
         }
       }
       _saveAnswers();
+      if (widget.onOptionsCountChange != null) {
+        Future.microtask(() {
+          widget.onOptionsCountChange!(selectedAnswers.length >= 3); // Check count after selection
+        });
+      }
     });
   }
 
@@ -72,11 +85,11 @@ class _QuestionPageState extends State<QuestionPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (widget.questionAnswer.selectionType == SelectionType.Multiple)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
             child: Text(
               "(Select All That Apply)",
-              style: TextStyle(fontSize: 16.0, color: Colors.orange),
+              style: TextStyle(fontSize: 16.0, color: AppColors.brightOrange),
             ),
           ),
         Wrap(

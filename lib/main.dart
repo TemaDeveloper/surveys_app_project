@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:surveys_app_project/pages/waiting_page.dart';
 import '/pages/register.dart'; 
 
 void main() {
