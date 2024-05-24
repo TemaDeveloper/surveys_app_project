@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:surveys_app_project/user_auth/firebase_auth.dart';
+import 'package:surveys_app_project/user_auth/toast.dart';
 import '../pages/questioner.dart';
 import 'package:surveys_app_project/colors.dart';
 
@@ -26,8 +27,16 @@ class AuthPage extends StatefulWidget {
   _AuthPageState createState() => _AuthPageState();
 }
 
-class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin {
+class _AuthPageState extends State<AuthPage>
+    with SingleTickerProviderStateMixin {
   TabController? _tabController;
+  final FirebaseAuthService _auth = FirebaseAuthService();
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
+  bool isSigningUp = false;
+  bool _isSigning = false;
+  
+  bool _obscurePassword = true;
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
@@ -40,10 +49,16 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Registration Successful')),
       );
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => QuestionnaireScreen()),
+      _signUp();
+    }
+  }
+
+  void _login() {
+    if (_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Signing in Successful')),
       );
+      _signIn();
     }
   }
 
@@ -56,6 +71,10 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
   @override
   void dispose() {
     _tabController?.dispose();
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -81,9 +100,9 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
             dividerColor: AppColors.facebookBlue,
             indicatorColor: AppColors.facebookBlue,
             labelStyle: TextStyle(
-                fontFamily: 'arial_rounded',
-                fontSize: 16,
-              ),
+              fontFamily: 'arial_rounded',
+              fontSize: 16,
+            ),
             tabs: [
               Tab(text: 'Create Account'),
               Tab(text: 'Log In'),
@@ -152,7 +171,17 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
               controller: _passwordController,
               labelText: 'Password',
               hintText: 'Enter your password',
-              obscureText: true,
+              obscureText: _obscurePassword,
+              suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword ? Icons.visibility : Icons.visibility_off,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
+            ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your password';
@@ -199,7 +228,17 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
               controller: _passwordController,
               labelText: 'Password',
               hintText: 'Enter your password',
-              obscureText: true,
+              obscureText: _obscurePassword,
+              suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword ? Icons.visibility : Icons.visibility_off,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
+            ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your password';
@@ -213,7 +252,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
             _buildStyledButton(
               text: "Log in",
               onPressed: () {
-                // TODO: Implement login logic
+                _login();
               },
             ),
             SizedBox(height: 20),
@@ -229,6 +268,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
     required String hintText,
     TextInputType keyboardType = TextInputType.text,
     bool obscureText = false,
+    Widget? suffixIcon,
     required String? Function(String?) validator,
   }) {
     return TextFormField(
@@ -239,6 +279,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,
+        suffixIcon: suffixIcon,
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: AppColors.grey),
         ),
@@ -291,5 +332,56 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
         ),
       ),
     );
+  }
+
+  void _signUp() async {
+    setState(() {
+      isSigningUp = true;
+    });
+
+    String username = _nameController.text;
+    String phone = _phoneController.text;
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    User? user = await _auth.signUpWithEmailAndPassword(email, password);
+
+    setState(() {
+      isSigningUp = false;
+    });
+    if (user != null) {
+      showToast(message: "User is successfully created");
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => QuestionnaireScreen()),
+      );
+    } else {
+      showToast(message: "Some error happend");
+    }
+  }
+
+  void _signIn() async {
+    setState(() {
+      _isSigning = true;
+    });
+
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    User? user = await _auth.signInWithEmailAndPassword(email, password);
+
+    setState(() {
+      _isSigning = false;
+    });
+
+    if (user != null) {
+      showToast(message: "User is successfully signed in");
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => QuestionnaireScreen()),
+      );
+    } else {
+      showToast(message: "some error occured");
+    }
   }
 }

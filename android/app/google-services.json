@@ -1,10 +1,30 @@
 {
   "project_info": {
     "project_number": "753614534084",
+    "firebase_url": "https://nightcaps-75442-default-rtdb.firebaseio.com",
     "project_id": "nightcaps-75442",
     "storage_bucket": "nightcaps-75442.appspot.com"
   },
   "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:753614534084:android:b150b45da92f73a2aae091",
+        "android_client_info": {
+          "package_name": "com.example.survey"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLFDwXLSfHDhTELWceiX31q7uid38zwOA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
     {
       "client_info": {
         "mobilesdk_app_id": "1:753614534084:android:7ae7be94e18467abaae091",

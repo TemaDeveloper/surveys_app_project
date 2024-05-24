@@ -1,8 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:surveys_app_project/pages/waiting_page.dart';
 import '/pages/register.dart';
+import 'firebase_options.dart'; 
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,8 +13,11 @@ Future main() async {
             appId: "1:753614534084:web:bb583173dd924768aae091",
             messagingSenderId: "753614534084",
             projectId: "nightcaps-75442"));
+  } else {
+    await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+);
   }
-  await Firebase.initializeApp;
   runApp(MyApp());
 }
 
