@@ -80,6 +80,10 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
             labelColor: AppColors.facebookBlue,
             dividerColor: AppColors.facebookBlue,
             indicatorColor: AppColors.facebookBlue,
+            labelStyle: TextStyle(
+                fontFamily: 'arial_rounded',
+                fontSize: 16,
+              ),
             tabs: [
               Tab(text: 'Create Account'),
               Tab(text: 'Log In'),
@@ -278,6 +282,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
             child: Text(
               text,
               style: TextStyle(
+                fontFamily: 'arial_rounded',
                 color: Colors.white,
                 fontSize: 18,
               ),

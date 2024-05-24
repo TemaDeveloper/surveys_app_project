@@ -12,6 +12,7 @@ dependencies:
   firebase_auth: ^4.0.0
   google_sign_in: ^6.0.0  
   cupertino_icons: ^1.0.2
+  firebase_core: ^2.31.1
 
 dev_dependencies:
   flutter_test:
@@ -24,3 +25,7 @@ flutter:
     - assets/active_icons/
     - assets/inactive_icons/
     - assets/nightcaps_logo.png
+  fonts:
+    - family: arial_rounded
+      fonts:
+        - asset: assets/fonts/arial_rounded_bold.ttf

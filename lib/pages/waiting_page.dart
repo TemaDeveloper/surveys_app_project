@@ -16,7 +16,7 @@ class CompletedSurveyPage extends StatelessWidget {
               child: Text(
                 'You have already completed your Great Sleeper Survey today.\nSleep well tonight!',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 20, fontFamily: 'arial_rounded'),
               ),
             ),
           ),

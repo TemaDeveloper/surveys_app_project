@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "753614534084",
+    "project_id": "nightcaps-75442",
+    "storage_bucket": "nightcaps-75442.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:753614534084:android:7ae7be94e18467abaae091",
+        "android_client_info": {
+          "package_name": "com.example.surveys_app_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLFDwXLSfHDhTELWceiX31q7uid38zwOA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

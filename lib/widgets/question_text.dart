@@ -11,7 +11,10 @@ class QuestionText extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Text(
         question,
-        style: const TextStyle(fontSize: 18.0),
+        style: const TextStyle(
+          fontSize: 18.0,
+          fontFamily: 'arial_rounded',
+        ),
         textAlign: TextAlign.center,
       ),
     );

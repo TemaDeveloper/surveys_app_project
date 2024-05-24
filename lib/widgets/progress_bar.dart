@@ -23,7 +23,7 @@ class ProgressBar extends StatelessWidget {
                     (index + 1).toString(),
                     style: const TextStyle(
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                      fontFamily: 'arial_rounded'
                     ),
                   )
                 : null,

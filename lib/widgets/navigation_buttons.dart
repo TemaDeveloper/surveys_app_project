@@ -81,6 +81,7 @@ class NavigationButtons extends StatelessWidget {
                     style: TextStyle(
                       color: isNextButtonEnabled ? Colors.white : AppColors.facebookBlue,
                       fontSize: 18,
+                      fontFamily: 'arial_rounded'
                     ),
                   ),
                 ),

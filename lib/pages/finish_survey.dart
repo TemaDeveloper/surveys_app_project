@@ -49,7 +49,7 @@ class SubmissionSuccessScreen extends StatelessWidget {
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                    fontFamily: 'arial_rounded'
                   ),
                 ),
                 Text(
@@ -57,7 +57,7 @@ class SubmissionSuccessScreen extends StatelessWidget {
                   style: TextStyle(
                     color: Color(0xFFFFA500),
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontFamily: 'arial_rounded'
                   ),
                 ),
                 Spacer(),
@@ -77,6 +77,7 @@ class SubmissionSuccessScreen extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
+                      fontFamily: 'arial_rounded'
                     ),
                   ),
                 ),

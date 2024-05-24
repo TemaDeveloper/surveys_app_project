@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:surveys_app_project/colors.dart';
-import 'answer_options.dart'; 
+import 'answer_options.dart';
 import '../pages/question_answer_struct.dart';
 
 class QuestionPage extends StatefulWidget {
@@ -29,7 +29,8 @@ class _QuestionPageState extends State<QuestionPage> {
     selectedAnswers = widget.getSavedAnswers(widget.questionAnswer.questionId);
     if (widget.onOptionsCountChange != null) {
       Future.microtask(() {
-        widget.onOptionsCountChange!(selectedAnswers.length >= 3); // Check initial count
+        widget.onOptionsCountChange!(
+            selectedAnswers.length >= 3); // Check initial count
       });
     }
   }
@@ -73,7 +74,8 @@ class _QuestionPageState extends State<QuestionPage> {
       _saveAnswers();
       if (widget.onOptionsCountChange != null) {
         Future.microtask(() {
-          widget.onOptionsCountChange!(selectedAnswers.length >= 3); // Check count after selection
+          widget.onOptionsCountChange!(
+              selectedAnswers.length >= 3); // Check count after selection
         });
       }
     });
@@ -89,7 +91,11 @@ class _QuestionPageState extends State<QuestionPage> {
             padding: EdgeInsets.all(8.0),
             child: Text(
               "(Select All That Apply)",
-              style: TextStyle(fontSize: 16.0, color: AppColors.brightOrange),
+              style: TextStyle(
+                fontSize: 16.0,
+                color: AppColors.brightOrange,
+                fontFamily: 'arial_rounded',
+              ),
             ),
           ),
         Wrap(
@@ -99,7 +105,8 @@ class _QuestionPageState extends State<QuestionPage> {
             return AnswerOption(
               answer: answer,
               isSelected: selectedAnswers.contains(answer),
-              isMultipleChoice: widget.questionAnswer.selectionType != SelectionType.Single,
+              isMultipleChoice:
+                  widget.questionAnswer.selectionType != SelectionType.Single,
               onSelected: _onAnswerSelected,
             );
           }).toList(),
