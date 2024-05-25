@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '/pages/register.dart';
+import 'package:surveys_app_project/pages/auth_wrapper.dart';
 import 'firebase_options.dart'; 
 
 Future main() async {
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: AuthPage(),
+      home: AuthWrapper(),
     );
   }
 }

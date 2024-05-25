@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:surveys_app_project/manager/shared_pref_manager.dart';
 import 'package:surveys_app_project/models/user.dart';
+import 'package:surveys_app_project/pages/waiting_page.dart';
 import 'package:surveys_app_project/user_auth/firebase_auth.dart';
 import 'package:surveys_app_project/user_auth/toast.dart';
 import '../pages/questioner.dart';
@@ -34,10 +36,11 @@ class _AuthPageState extends State<AuthPage>
   TabController? _tabController;
   final FirebaseAuthService _auth = FirebaseAuthService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final UserDataManager _userDataManager = UserDataManager();
 
   bool isSigningUp = false;
   bool _isSigning = false;
-  
+
   bool _obscurePassword = true;
 
   final _formKey = GlobalKey<FormState>();
@@ -51,9 +54,8 @@ class _AuthPageState extends State<AuthPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Registration Successful')),
       );
-      
+
       _signUp();
-      _addUser();
     }
   }
 
@@ -177,15 +179,15 @@ class _AuthPageState extends State<AuthPage>
               hintText: 'Enter your password',
               obscureText: _obscurePassword,
               suffixIcon: IconButton(
-              icon: Icon(
-                _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                icon: Icon(
+                  _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
               ),
-              onPressed: () {
-                setState(() {
-                  _obscurePassword = !_obscurePassword;
-                });
-              },
-            ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your password';
@@ -234,15 +236,15 @@ class _AuthPageState extends State<AuthPage>
               hintText: 'Enter your password',
               obscureText: _obscurePassword,
               suffixIcon: IconButton(
-              icon: Icon(
-                _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                icon: Icon(
+                  _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
               ),
-              onPressed: () {
-                setState(() {
-                  _obscurePassword = !_obscurePassword;
-                });
-              },
-            ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your password';
@@ -338,21 +340,6 @@ class _AuthPageState extends State<AuthPage>
     );
   }
 
-  void _addUser() {
-
-    String username = _nameController.text;
-    String phone = _phoneController.text;
-    String email = _emailController.text;
-
-    createNewUser(UserModel(
-      name: username,
-      email: email,
-      phone: phone,
-      date: Timestamp.now(),
-    ));
-
-  }
-
   void _signUp() async {
     setState(() {
       isSigningUp = true;
@@ -368,48 +355,102 @@ class _AuthPageState extends State<AuthPage>
     });
     if (user != null) {
       showToast(message: "User is successfully created");
+      _userDataManager.saveUserData(user.uid, email);
+      _addUser(user); // Pass the user to _addUser
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => QuestionnaireScreen()),
       );
     } else {
-      showToast(message: "Some error happend");
+      showToast(message: "Some error happened");
     }
   }
 
   void _signIn() async {
-    setState(() {
-      _isSigning = true;
-    });
+  setState(() {
+    _isSigning = true;
+  });
 
-    String email = _emailController.text;
-    String password = _passwordController.text;
+  String email = _emailController.text;
+  String password = _passwordController.text;
 
-    User? user = await _auth.signInWithEmailAndPassword(email, password);
+  User? user = await _auth.signInWithEmailAndPassword(email, password);
 
-    setState(() {
-      _isSigning = false;
-    });
+  setState(() {
+    _isSigning = false;
+  });
 
-    if (user != null) {
-      showToast(message: "User is successfully signed in");
-      Navigator.push(
+  if (user != null) {
+    showToast(message: "User is successfully signed in");
+    _userDataManager.saveUserData(user.uid, email);
+
+    // Check the survey status
+    bool? surveyCompleted = await getSurveyCompletedStatus(user);
+
+    if (surveyCompleted == true) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => CompletedSurveyPage()),
+      );
+    } else {
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => QuestionnaireScreen()),
       );
-    } else {
-      showToast(message: "some error occured");
     }
+  } else {
+    showToast(message: "Some error occurred");
   }
 }
 
-void createNewUser(UserModel user){
+Future<bool?> getSurveyCompletedStatus(User user) async {
   final userCollection = FirebaseFirestore.instance.collection('users');
-    String id = userCollection.doc().id;
+  DocumentSnapshot docSnapshot = await userCollection.doc(user.uid).get();
 
-    final newUser = UserModel(id: id, name: user.name, email: user.email, date: user.date, phone: user.phone).toJson();
+  if (docSnapshot.exists) {
+    // Extract the survey_completed field
+    var data = docSnapshot.data() as Map<String, dynamic>;
+    bool? surveyCompleted = data['survey_completed'] as bool?;
+    return surveyCompleted;
+  } else {
+    print('Document does not exist');
+    return null;
+  }
+}
 
-    userCollection.doc(id).set(newUser);
 
+  void _addUser(User user) {
+    String username = _nameController.text;
+    String phone = _phoneController.text;
+    String email = _emailController.text;
 
+    saveUserToFirestore(user, UserModel(
+      name: username,
+      email: email,
+      phone: phone,
+      date: Timestamp.now(),
+      survey_completed: false,
+    ));
+  }
+}
+
+Future<void> saveUserToFirestore(User userauth, UserModel user) async {
+  final userCollection = FirebaseFirestore.instance.collection('users');
+  String userId = userauth.uid;
+
+  try {
+    final newUser = UserModel(
+      id: userId,
+      name: user.name,
+      email: user.email,
+      date: user.date,
+      phone: user.phone,
+      survey_completed: user.survey_completed,
+    ).toJson();
+
+    await userCollection.doc(userId).set(newUser);
+    print('User data saved successfully.');
+  } catch (e) {
+    print('Error saving user data: $e');
+  }
 }

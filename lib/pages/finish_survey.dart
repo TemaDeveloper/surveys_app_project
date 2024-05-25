@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:surveys_app_project/colors.dart';
+import 'package:surveys_app_project/manager/shared_pref_manager.dart';
+import 'package:surveys_app_project/pages/waiting_page.dart';
 
 class SubmissionSuccessScreen extends StatelessWidget {
   @override
@@ -47,23 +51,26 @@ class SubmissionSuccessScreen extends StatelessWidget {
                 Text(
                   'Successful Submission',
                   style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 22,
-                    fontFamily: 'arial_rounded'
-                  ),
+                      color: Colors.black,
+                      fontSize: 22,
+                      fontFamily: 'arial_rounded'),
                 ),
                 Text(
                   'Thank You',
                   style: TextStyle(
-                    color: Color(0xFFFFA500),
-                    fontSize: 20,
-                    fontFamily: 'arial_rounded'
-                  ),
+                      color: Color(0xFFFFA500),
+                      fontSize: 20,
+                      fontFamily: 'arial_rounded'),
                 ),
                 Spacer(),
                 ElevatedButton(
                   onPressed: () {
-                    // Navigate to home screen
+                    updateSurveyCompletion();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CompletedSurveyPage()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.facebookBlue, // background color
@@ -75,10 +82,9 @@ class SubmissionSuccessScreen extends StatelessWidget {
                   child: Text(
                     'Home',
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontFamily: 'arial_rounded'
-                    ),
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontFamily: 'arial_rounded'),
                   ),
                 ),
                 SizedBox(height: 20),
@@ -89,4 +95,28 @@ class SubmissionSuccessScreen extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> updateSurveyCompletion() async {
+  User? user = FirebaseAuth.instance.currentUser;
+
+  if (user != null) {
+    String userId = user.uid; // UID from Firebase Auth
+    final userCollection = FirebaseFirestore.instance.collection('users');
+
+    try {
+      DocumentSnapshot doc = await userCollection.doc(userId).get();
+
+      if (doc.exists) {
+        await userCollection.doc(userId).update({'survey_completed': true});
+        print('Survey completion status updated successfully.');
+      } else {
+        print('User document not found. Creating new document.');
+      }
+    } catch (e) {
+      print('Error updating survey completion status: $e');
+    }
+  } else {
+    print('No user is currently signed in.');
+  }
+}
 }
