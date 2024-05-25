@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:surveys_app_project/models/user.dart';
 import 'package:surveys_app_project/user_auth/firebase_auth.dart';
 import 'package:surveys_app_project/user_auth/toast.dart';
 import '../pages/questioner.dart';
@@ -31,7 +33,7 @@ class _AuthPageState extends State<AuthPage>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
   final FirebaseAuthService _auth = FirebaseAuthService();
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   bool isSigningUp = false;
   bool _isSigning = false;
@@ -49,7 +51,9 @@ class _AuthPageState extends State<AuthPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Registration Successful')),
       );
+      
       _signUp();
+      _addUser();
     }
   }
 
@@ -334,13 +338,26 @@ class _AuthPageState extends State<AuthPage>
     );
   }
 
+  void _addUser() {
+
+    String username = _nameController.text;
+    String phone = _phoneController.text;
+    String email = _emailController.text;
+
+    createNewUser(UserModel(
+      name: username,
+      email: email,
+      phone: phone,
+      date: Timestamp.now(),
+    ));
+
+  }
+
   void _signUp() async {
     setState(() {
       isSigningUp = true;
     });
 
-    String username = _nameController.text;
-    String phone = _phoneController.text;
     String email = _emailController.text;
     String password = _passwordController.text;
 
@@ -384,4 +401,15 @@ class _AuthPageState extends State<AuthPage>
       showToast(message: "some error occured");
     }
   }
+}
+
+void createNewUser(UserModel user){
+  final userCollection = FirebaseFirestore.instance.collection('users');
+    String id = userCollection.doc().id;
+
+    final newUser = UserModel(id: id, name: user.name, email: user.email, date: user.date, phone: user.phone).toJson();
+
+    userCollection.doc(id).set(newUser);
+
+
 }
