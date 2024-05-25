@@ -108,6 +108,7 @@ class SubmissionSuccessScreen extends StatelessWidget {
 
       if (doc.exists) {
         await userCollection.doc(userId).update({'survey_completed': true});
+        await userCollection.doc(userId).update({'last_entered': Timestamp.now()});
         print('Survey completion status updated successfully.');
       } else {
         print('User document not found. Creating new document.');

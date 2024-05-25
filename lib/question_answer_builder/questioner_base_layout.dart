@@ -20,9 +20,12 @@ class QuestionPage extends StatefulWidget {
   _QuestionPageState createState() => _QuestionPageState();
 }
 
+//TODO add the interface for none_choosing
+
 class _QuestionPageState extends State<QuestionPage> {
   List<String> selectedAnswers = [];
 
+ 
   @override
   void initState() {
     super.initState();
@@ -41,37 +44,44 @@ class _QuestionPageState extends State<QuestionPage> {
 
   void _onAnswerSelected(String answer) {
     setState(() {
-      if (answer == 'none') {
-        selectedAnswers = ['none'];
-      } else {
-        if (selectedAnswers.contains('none')) {
-          selectedAnswers.remove('none');
-        }
 
-        // Handle pair logic
-        if (widget.questionAnswer.pairs != null) {
-          for (var pair in widget.questionAnswer.pairs!) {
-            if (pair.contains(answer)) {
-              for (var option in pair) {
-                if (option != answer) {
-                  selectedAnswers.remove(option);
-                }
+      if (answer == 'none_exercises') {
+      selectedAnswers = ['none_exercises'];
+    } else if (answer == 'none_gym') {
+      selectedAnswers = ['none_gym'];
+    } else if (answer == 'none') {
+      selectedAnswers = ['none'];
+    } else {
+      // Remove special cases if any other answer is selected
+      selectedAnswers.removeWhere((a) => a == 'none_exercises' || a == 'none_gym' || a == 'none');
+      
+      // Handle pair logic
+      if (widget.questionAnswer.pairs != null) {
+        for (var pair in widget.questionAnswer.pairs!) {
+          if (pair.contains(answer)) {
+            for (var option in pair) {
+              if (option != answer) {
+                selectedAnswers.remove(option);
               }
             }
           }
         }
+      }
 
-        if (selectedAnswers.contains(answer)) {
-          selectedAnswers.remove(answer);
+      // Add or remove the selected answer
+      if (selectedAnswers.contains(answer)) {
+        selectedAnswers.remove(answer);
+      } else {
+        if (widget.questionAnswer.selectionType == SelectionType.Single) {
+          selectedAnswers = [answer];
         } else {
-          if (widget.questionAnswer.selectionType == SelectionType.Single) {
-            selectedAnswers = [answer];
-          } else {
-            selectedAnswers.add(answer);
-          }
+          selectedAnswers.add(answer);
         }
       }
+    }
+
       _saveAnswers();
+
       if (widget.onOptionsCountChange != null) {
         Future.microtask(() {
           widget.onOptionsCountChange!(

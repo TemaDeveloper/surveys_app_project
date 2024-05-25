@@ -59,6 +59,8 @@ class CompletedSurveyPage extends StatelessWidget {
             context,
             MaterialPageRoute(builder: (context) => QuestionnaireScreen()),
           );
+        }else{
+          print("Survey Already Completed");
         }
       } else {
         print('Document does not exist');

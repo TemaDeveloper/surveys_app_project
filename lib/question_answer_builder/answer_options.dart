@@ -26,15 +26,14 @@ class AnswerOption extends StatelessWidget {
             //Text(answer),
             //SizedBox(height: 10.0),
             Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image.asset(
-                  isSelected ? "assets/active_icons/${answer}_active.png" : "assets/inactive_icons/${answer}_inactive.png", // Use a random icon here
-                  //color: isSelected ? Colors.white : Colors.grey[800],
-                  
-                ),
+              padding: const EdgeInsets.all(8.0),
+              child: Image.asset(
+                isSelected
+                    ? "assets/active_icons/${answer}_active.png"
+                    : "assets/inactive_icons/${answer}_inactive.png", // Use a random icon here
+                //color: isSelected ? Colors.white : Colors.grey[800],
               ),
-            
-            
+            ),
           ],
         ),
       ),

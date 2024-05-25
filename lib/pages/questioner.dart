@@ -52,10 +52,17 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     ),
     QuestionAnswer(
       question: 'What screens did you watch within 1 hour of going to bed?',
-      answers: ['tv', 'computer', 'e_reader', 'phone', 'none'],
+      answers: ['smoke', 'coffein', 'alcohole', 'big_meal', 'exercise', 'none_exercises'],
       selectionType: SelectionType.Multiple,
       questionId: 'q5',
       pageIndex: 5,
+    ),
+    QuestionAnswer(
+      question: 'Did you do any of these activities during the DAYTIME?',
+      answers: ['morning_sun_kiss', 'walking', 'running', 'sport', 'gym', 'none_gym'],
+      selectionType: SelectionType.Multiple,
+      questionId: 'q6',
+      pageIndex: 6,
     ),
   ];
 
