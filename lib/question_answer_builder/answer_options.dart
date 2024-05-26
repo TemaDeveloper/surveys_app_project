@@ -1,4 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+
+Future<String> getImageUrl(String folder, String fileName) async {
+  try {
+    final Reference ref = FirebaseStorage.instance.ref().child(folder).child(fileName);
+    String url = await ref.getDownloadURL();
+    return url;
+  } catch (e) {
+    print('Error getting image URL: $e');
+    return '';
+  }
+}
 
 class AnswerOption extends StatelessWidget {
   final String answer;
@@ -23,16 +35,22 @@ class AnswerOption extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            //Text(answer),
-            //SizedBox(height: 10.0),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Image.asset(
-                isSelected
-                    ? "assets/active_icons/${answer}_active.png"
-                    : "assets/inactive_icons/${answer}_inactive.png", // Use a random icon here
-                //color: isSelected ? Colors.white : Colors.grey[800],
+            FutureBuilder<String>(
+              future: getImageUrl(
+                isSelected ? 'active_icons' : 'inactive_icons', 
+                '${answer}_${isSelected ? "active" : "inactive"}.png'
               ),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Icon(Icons.error);
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Icon(Icons.broken_image);
+                } else {
+                  return Image.network(snapshot.data!);
+                }
+              },
             ),
           ],
         ),

@@ -6,11 +6,11 @@ enum SelectionType {
 
 class QuestionAnswer {
   final String question;
-  final List<String> answers;
+  final List<String>? answers;
   final List<List<String>>? pairs; // Add pairs field
   final SelectionType selectionType;
   final String questionId;
-  final int pageIndex;
+  final int? pageIndex;
 
   QuestionAnswer({
     required this.question,

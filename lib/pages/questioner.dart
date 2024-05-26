@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '/widgets/progress_bar.dart';
 import '/widgets/question_text.dart';
@@ -14,66 +16,76 @@ class QuestionnaireScreen extends StatefulWidget {
 class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   PageController _pageController = PageController();
   int _currentPage = 0;
-  bool _isNextButtonEnabled = false; // Initialize to false to disable Next button by default
+  bool _isNextButtonEnabled = false;
+  late Future<List<QuestionAnswer>> _questionsFuture;
 
-  final List<QuestionAnswer> _questions = [
-    QuestionAnswer(
-      question: 'Did you take your NightCaps when you brushed your teeth last night?',
-      answers: ['yes', 'no'],
-      selectionType: SelectionType.Single,
-      questionId: 'q1',
-      pageIndex: 1,
-    ),
-    QuestionAnswer(
-      question: 'How do you feel this morning?',
-      answers: ['fantastic', 'pretty_good', 'okay', 'not_great', 'exhausted'],
-      selectionType: SelectionType.Single,
-      questionId: 'q2',
-      pageIndex: 2,
-    ),
-    QuestionAnswer(
-      question: 'What screens did you watch within 1 hour of going to bed?',
-      answers: ['tv', 'computer', 'e_reader', 'phone', 'none'],
-      selectionType: SelectionType.Multiple,
-      questionId: 'q3',
-      pageIndex: 3,
-    ),
-    QuestionAnswer(
-      question: 'What was your bedroom like when you went to bed?',
-      answers: ['light', 'dark', 'warm', 'cool', 'loud', 'quiet'],
-      pairs: [
-        ['light', 'dark'],
-        ['warm', 'cool'],
-        ['loud', 'quiet']
-      ],
-      selectionType: SelectionType.AtLeastOne,
-      questionId: 'q4',
-      pageIndex: 4,
-    ),
-    QuestionAnswer(
-      question: 'What screens did you watch within 1 hour of going to bed?',
-      answers: ['smoke', 'coffein', 'alcohole', 'big_meal', 'exercise', 'none_exercises'],
-      selectionType: SelectionType.Multiple,
-      questionId: 'q5',
-      pageIndex: 5,
-    ),
-    QuestionAnswer(
-      question: 'Did you do any of these activities during the DAYTIME?',
-      answers: ['morning_sun_kiss', 'walking', 'running', 'sport', 'gym', 'none_gym'],
-      selectionType: SelectionType.Multiple,
-      questionId: 'q6',
-      pageIndex: 6,
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _questionsFuture = _loadQuestions(context);
+  }
 
-  bool get isAnswerSelected {
-    final currentQuestion = _questions[_currentPage];
+  Future<List<QuestionAnswer>> _loadQuestions(BuildContext context) async {
+    try {
+      return [
+        QuestionAnswer(
+          question: await _getQuestion(context, "1") ?? "Default Question 1",
+          answers: await _getAnswers(context, "1"),
+          selectionType: SelectionType.Single,
+          questionId: 'q${await _getQid(context, "1")}',
+          pageIndex: await _getQid(context, "1"),
+        ),
+        QuestionAnswer(
+          question: await _getQuestion(context, "2") ?? "Default Question 2",
+          answers: await _getAnswers(context, "2"),
+          selectionType: SelectionType.Single,
+          questionId: 'q${await _getQid(context, "2")}',
+          pageIndex: await _getQid(context, "2"),
+        ),
+        QuestionAnswer(
+          question: await _getQuestion(context, "3") ?? "Default Question 3",
+          answers: await _getAnswers(context, "3"),
+          selectionType: SelectionType.Multiple,
+          questionId: 'q${await _getQid(context, "3")}',
+          pageIndex: await _getQid(context, "3"),
+        ),
+        QuestionAnswer(
+          question: await _getQuestion(context, "4") ?? "Default Question 4",
+          answers: await _getAnswers(context, "4"),
+          pairs: await _getPairs(context, "4"),
+          selectionType: SelectionType.AtLeastOne,
+          questionId: 'q${await _getQid(context, "4")}',
+          pageIndex: await _getQid(context, "4"),
+        ),
+        QuestionAnswer(
+          question: await _getQuestion(context, "5") ?? "Default Question 5",
+          answers: await _getAnswers(context, "5"),
+          selectionType: SelectionType.Multiple,
+          questionId: 'q${await _getQid(context, "5")}',
+          pageIndex: await _getQid(context, "5"),
+        ),
+        QuestionAnswer(
+          question: await _getQuestion(context, "6") ?? "Default Question 6",
+          answers: await _getAnswers(context, "6"),
+          selectionType: SelectionType.Multiple,
+          questionId: 'q${await _getQid(context, "6")}',
+          pageIndex: await _getQid(context, "6"),
+        ),
+      ];
+    } catch (e) {
+      print('Error loading questions: $e');
+      throw Exception('Error loading questions');
+    }
+  }
+
+  bool isAnswerSelected(List<QuestionAnswer> questions) {
+    final currentQuestion = questions[_currentPage];
     final selectedAnswers = _getSavedAnswers(currentQuestion.questionId);
     return selectedAnswers.isNotEmpty;
   }
 
-  void _nextPage() {
-    final currentQuestion = _questions[_currentPage];
+  void _nextPage(List<QuestionAnswer> questions) {
+    final currentQuestion = questions[_currentPage];
     final selectedAnswers = _getSavedAnswers(currentQuestion.questionId);
 
     if (_currentPage == 3 && !_isNextButtonEnabled) {
@@ -90,10 +102,10 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
       return;
     }
 
-    if (_currentPage < _questions.length - 1) {
+    if (_currentPage < questions.length - 1) {
       setState(() {
         _currentPage++;
-        _isNextButtonEnabled = false; // Reset button state for other pages
+        _isNextButtonEnabled = false;
         _pageController.nextPage(
           duration: Duration(milliseconds: 300),
           curve: Curves.easeIn,
@@ -102,11 +114,12 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     }
   }
 
-  void _previousPage() {
+  void _previousPage(List<QuestionAnswer> questions) {
     if (_currentPage > 0) {
       setState(() {
         _currentPage--;
-        _isNextButtonEnabled = _getSavedAnswers(_questions[_currentPage].questionId).isNotEmpty;
+        _isNextButtonEnabled =
+            _getSavedAnswers(questions[_currentPage].questionId).isNotEmpty;
         _pageController.previousPage(
           duration: Duration(milliseconds: 300),
           curve: Curves.easeIn,
@@ -115,10 +128,10 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     }
   }
 
-  void _saveAnswers(String questionId, List<String> selectedAnswers) {
+  void _saveAnswers(String questionId, List<String>? selectedAnswers) {
     AnswerStore().saveAnswer(questionId, selectedAnswers);
     setState(() {
-      _isNextButtonEnabled = selectedAnswers.isNotEmpty;
+      _isNextButtonEnabled = selectedAnswers!.isNotEmpty;
     });
   }
 
@@ -126,7 +139,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     return AnswerStore().getAnswer(questionId);
   }
 
-  void _onOptionsCountChange(bool isEnabled) { // Handle option count changes
+  void _onOptionsCountChange(bool isEnabled) {
     setState(() {
       _isNextButtonEnabled = isEnabled;
     });
@@ -136,7 +149,6 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // Prevent back navigation
         return false;
       },
       child: Scaffold(
@@ -146,64 +158,173 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
             flexibleSpace: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 20,),
+                SizedBox(
+                  height: 20,
+                ),
                 Center(
                   child: Image.asset(
                     "assets/nightcaps_logo.png",
                     fit: BoxFit.contain,
-                    height: 150, // Adjust the height as needed
+                    height: 150,
                   ),
                 ),
               ],
             ),
             automaticallyImplyLeading: false,
           ),
-      
         ),
-        body: Stack(
-          children: [
-            Column(
-              children: [
-                ProgressBar(
-                  currentPage: _currentPage + 1,
-                  totalPages: _questions.length,
-                ),
-                QuestionText(question: _questions[_currentPage].question),
-                Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: _questions.length,
-                    onPageChanged: (index) { // Ensure page change is tracked
-                      setState(() {
-                        _currentPage = index;
-                        _isNextButtonEnabled = _getSavedAnswers(_questions[index].questionId).isNotEmpty;
-                      });
-                    },
-                    itemBuilder: (context, index) {
-                      return QuestionPage(
-                        questionAnswer: _questions[index],
-                        onSave: _saveAnswers,
-                        getSavedAnswers: _getSavedAnswers,
-                        onOptionsCountChange: index == 3 ? _onOptionsCountChange : null, // Track option count changes only for page with pairs
-                      );
-                    },
+        body: FutureBuilder<List<QuestionAnswer>>(
+          future: _questionsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error loading questions'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text('No questions available'));
+            } else {
+              List<QuestionAnswer> questions = snapshot.data!;
+              return Stack(
+                children: [
+                  Column(
+                    children: [
+                      ProgressBar(
+                        currentPage: _currentPage + 1,
+                        totalPages: questions.length,
+                      ),
+                      QuestionText(question: questions[_currentPage].question),
+                      Expanded(
+                        child: PageView.builder(
+                          controller: _pageController,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: questions.length,
+                          onPageChanged: (index) {
+                            setState(() {
+                              _currentPage = index;
+                              _isNextButtonEnabled =
+                                  _getSavedAnswers(questions[index].questionId)
+                                      .isNotEmpty;
+                            });
+                          },
+                          itemBuilder: (context, index) {
+                            return QuestionPage(
+                              questionAnswer: questions[index],
+                              onSave: _saveAnswers,
+                              getSavedAnswers: _getSavedAnswers,
+                              onOptionsCountChange: index == 3
+                                  ? _onOptionsCountChange
+                                  : null,
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            NavigationButtons(
-              currentPage: _currentPage,
-              totalPages: _questions.length,
-              onPrevious: _previousPage,
-              onNext: _nextPage,
-              isAnswerSelected: isAnswerSelected,
-              isNextButtonEnabled: _isNextButtonEnabled, // Pass button state to NavigationButtons
-            ),
-            const SizedBox(height: 40),
-          ],
+                  NavigationButtons(
+                    currentPage: _currentPage,
+                    totalPages: questions.length,
+                    onPrevious: () => _previousPage(questions),
+                    onNext: () => _nextPage(questions),
+                    isAnswerSelected: isAnswerSelected(questions),
+                    isNextButtonEnabled: _isNextButtonEnabled,
+                  ),
+                  const SizedBox(height: 40),
+                ],
+              );
+            }
+          },
         ),
       ),
     );
   }
+
+  Future<String?> _getQuestion(BuildContext context, String qCounter) async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final userCollection = FirebaseFirestore.instance.collection('questions');
+        DocumentSnapshot docSnapshot = await userCollection.doc(qCounter).get();
+
+        if (docSnapshot.exists) {
+          var data = docSnapshot.data() as Map<String, dynamic>;
+          String? question = data['question'] as String?;
+          return question;
+        }
+      }
+    } catch (e) {
+      print('Error fetching question $qCounter: $e');
+    }
+    return null;
+  }
+
+  Future<int?> _getQid(BuildContext context, String qCounter) async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final userCollection = FirebaseFirestore.instance.collection('questions');
+        DocumentSnapshot docSnapshot = await userCollection.doc(qCounter).get();
+
+        if (docSnapshot.exists) {
+          var data = docSnapshot.data() as Map<String, dynamic>;
+          int? qid = data['qid'] as int?;
+          return qid;
+        }
+      }
+    } catch (e) {
+      print('Error fetching qid $qCounter: $e');
+    }
+    return null;
+  }
+
+  Future<List<String>> _getAnswers(BuildContext context, String qCounter) async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final userCollection = FirebaseFirestore.instance.collection('questions');
+        DocumentSnapshot docSnapshot = await userCollection.doc(qCounter).get();
+
+        if (docSnapshot.exists) {
+          var data = docSnapshot.data() as Map<String, dynamic>;
+          List<String> answers = List<String>.from(data['answers']);
+          return answers;
+        }
+      }
+    } catch (e) {
+      print('Error fetching answers for $qCounter: $e');
+    }
+    return [];
+  }
+
+  Future<List<List<String>>> _getPairs(BuildContext context, String qCounter) async {
+  try {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userCollection = FirebaseFirestore.instance.collection('questions');
+      DocumentSnapshot docSnapshot = await userCollection.doc(qCounter).get();
+
+      if (docSnapshot.exists) {
+        var data = docSnapshot.data() as Map<String, dynamic>;
+        List<dynamic> pairsData = data['pairs'] as List<dynamic>;
+        List<List<String>> pairs = [];
+
+        for (var pair in pairsData) {
+          List<String> pairValues = [];
+          if (pair.containsKey('pair1')) pairValues.add(pair['pair1'] ?? '');
+          if (pair.containsKey('pair2')) pairValues.add(pair['pair2'] ?? '');
+          if (pair.containsKey('pair3')) pairValues.add(pair['pair3'] ?? '');
+          if (pair.containsKey('pair4')) pairValues.add(pair['pair4'] ?? '');
+          if (pair.containsKey('pair5')) pairValues.add(pair['pair5'] ?? '');
+          if (pair.containsKey('pair6')) pairValues.add(pair['pair6'] ?? '');
+          pairs.add(pairValues);
+        }
+        return pairs;
+      }
+    }
+  } catch (e) {
+    print('Error fetching pairs for $qCounter: $e');
+  }
+  return [];
+}
+
+
 }

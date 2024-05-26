@@ -5,8 +5,8 @@ import '../pages/question_answer_struct.dart';
 
 class QuestionPage extends StatefulWidget {
   final QuestionAnswer questionAnswer;
-  final void Function(String, List<String>) onSave;
-  final List<String> Function(String) getSavedAnswers;
+  final void Function(String, List<String>?) onSave;
+  final List<String>? Function(String) getSavedAnswers;
   final void Function(bool)? onOptionsCountChange; // Track option count changes
 
   QuestionPage({
@@ -23,7 +23,7 @@ class QuestionPage extends StatefulWidget {
 //TODO add the interface for none_choosing
 
 class _QuestionPageState extends State<QuestionPage> {
-  List<String> selectedAnswers = [];
+  List<String>? selectedAnswers = [];
 
  
   @override
@@ -33,7 +33,7 @@ class _QuestionPageState extends State<QuestionPage> {
     if (widget.onOptionsCountChange != null) {
       Future.microtask(() {
         widget.onOptionsCountChange!(
-            selectedAnswers.length >= 3); // Check initial count
+            selectedAnswers!.length >= 3); // Check initial count
       });
     }
   }
@@ -53,7 +53,7 @@ class _QuestionPageState extends State<QuestionPage> {
       selectedAnswers = ['none'];
     } else {
       // Remove special cases if any other answer is selected
-      selectedAnswers.removeWhere((a) => a == 'none_exercises' || a == 'none_gym' || a == 'none');
+      selectedAnswers!.removeWhere((a) => a == 'none_exercises' || a == 'none_gym' || a == 'none');
       
       // Handle pair logic
       if (widget.questionAnswer.pairs != null) {
@@ -61,7 +61,7 @@ class _QuestionPageState extends State<QuestionPage> {
           if (pair.contains(answer)) {
             for (var option in pair) {
               if (option != answer) {
-                selectedAnswers.remove(option);
+                selectedAnswers!.remove(option);
               }
             }
           }
@@ -69,13 +69,13 @@ class _QuestionPageState extends State<QuestionPage> {
       }
 
       // Add or remove the selected answer
-      if (selectedAnswers.contains(answer)) {
-        selectedAnswers.remove(answer);
+      if (selectedAnswers!.contains(answer)) {
+        selectedAnswers!.remove(answer);
       } else {
         if (widget.questionAnswer.selectionType == SelectionType.Single) {
           selectedAnswers = [answer];
         } else {
-          selectedAnswers.add(answer);
+          selectedAnswers!.add(answer);
         }
       }
     }
@@ -85,7 +85,7 @@ class _QuestionPageState extends State<QuestionPage> {
       if (widget.onOptionsCountChange != null) {
         Future.microtask(() {
           widget.onOptionsCountChange!(
-              selectedAnswers.length >= 3); // Check count after selection
+              selectedAnswers!.length >= 3); // Check count after selection
         });
       }
     });
@@ -111,10 +111,10 @@ class _QuestionPageState extends State<QuestionPage> {
         Wrap(
           spacing: 10.0,
           runSpacing: 10.0,
-          children: widget.questionAnswer.answers.map((answer) {
+          children: widget.questionAnswer.answers!.map((answer) {
             return AnswerOption(
               answer: answer,
-              isSelected: selectedAnswers.contains(answer),
+              isSelected: selectedAnswers!.contains(answer),
               isMultipleChoice:
                   widget.questionAnswer.selectionType != SelectionType.Single,
               onSelected: _onAnswerSelected,

@@ -7,9 +7,9 @@ class AnswerStore {
 
   AnswerStore._internal();
 
-  final Map<String, List<String>> _answers = {};
+  final Map<String, List<String>?> _answers = {};
 
-  void saveAnswer(String questionId, List<String> answers) {
+  void saveAnswer(String questionId, List<String>? answers) {
     _answers[questionId] = answers;
   }
 
