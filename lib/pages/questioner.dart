@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:surveys_app_project/pages/finish_survey.dart';
 import '/widgets/progress_bar.dart';
 import '/widgets/question_text.dart';
 import '/widgets/navigation_buttons.dart';
@@ -111,8 +112,34 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
           curve: Curves.easeIn,
         );
       });
+    } else {
+      _submitSurvey(
+          questions); // Call _submitSurvey when the survey is completed
     }
   }
+
+  void _submitSurvey(List<QuestionAnswer> questions) async {
+  User? user = FirebaseAuth.instance.currentUser; // Get the current user
+  String? email = user?.email; // Get the user's email
+
+  List<String> selectedAnswers = [];
+  for (var question in questions) {
+    selectedAnswers.addAll(_getSavedAnswers(question.questionId));
+  }
+
+  List<String> questionTexts = questions.map((q) => q.question).toList();
+
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (context) => SubmissionSuccessScreen.withData(
+        questions: questionTexts,
+        selectedAnswers: selectedAnswers,
+        email: email,
+      ),
+    ),
+  );
+}
+
 
   void _previousPage(List<QuestionAnswer> questions) {
     if (_currentPage > 0) {
@@ -211,9 +238,8 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                               questionAnswer: questions[index],
                               onSave: _saveAnswers,
                               getSavedAnswers: _getSavedAnswers,
-                              onOptionsCountChange: index == 3
-                                  ? _onOptionsCountChange
-                                  : null,
+                              onOptionsCountChange:
+                                  index == 3 ? _onOptionsCountChange : null,
                             );
                           },
                         ),
@@ -227,6 +253,7 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
                     onNext: () => _nextPage(questions),
                     isAnswerSelected: isAnswerSelected(questions),
                     isNextButtonEnabled: _isNextButtonEnabled,
+                    onSubmit: () => _submitSurvey(questions),
                   ),
                   const SizedBox(height: 40),
                 ],
@@ -242,7 +269,8 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     try {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        final userCollection = FirebaseFirestore.instance.collection('questions');
+        final userCollection =
+            FirebaseFirestore.instance.collection('questions');
         DocumentSnapshot docSnapshot = await userCollection.doc(qCounter).get();
 
         if (docSnapshot.exists) {
@@ -257,30 +285,33 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     return null;
   }
 
-  Future<int?> _getQid(BuildContext context, String qCounter) async {
+  Future<int> _getQid(BuildContext context, String qCounter) async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        final userCollection = FirebaseFirestore.instance.collection('questions');
+        final userCollection =
+            FirebaseFirestore.instance.collection('questions');
         DocumentSnapshot docSnapshot = await userCollection.doc(qCounter).get();
 
         if (docSnapshot.exists) {
           var data = docSnapshot.data() as Map<String, dynamic>;
-          int? qid = data['qid'] as int?;
+          int qid = data['qid'] as int;
           return qid;
         }
       }
     } catch (e) {
       print('Error fetching qid $qCounter: $e');
     }
-    return null;
+    return 1;
   }
 
-  Future<List<String>> _getAnswers(BuildContext context, String qCounter) async {
+  Future<List<String>> _getAnswers(
+      BuildContext context, String qCounter) async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        final userCollection = FirebaseFirestore.instance.collection('questions');
+        final userCollection =
+            FirebaseFirestore.instance.collection('questions');
         DocumentSnapshot docSnapshot = await userCollection.doc(qCounter).get();
 
         if (docSnapshot.exists) {
@@ -295,36 +326,36 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
     return [];
   }
 
-  Future<List<List<String>>> _getPairs(BuildContext context, String qCounter) async {
-  try {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final userCollection = FirebaseFirestore.instance.collection('questions');
-      DocumentSnapshot docSnapshot = await userCollection.doc(qCounter).get();
+  Future<List<List<String>>> _getPairs(
+      BuildContext context, String qCounter) async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final userCollection =
+            FirebaseFirestore.instance.collection('questions');
+        DocumentSnapshot docSnapshot = await userCollection.doc(qCounter).get();
 
-      if (docSnapshot.exists) {
-        var data = docSnapshot.data() as Map<String, dynamic>;
-        List<dynamic> pairsData = data['pairs'] as List<dynamic>;
-        List<List<String>> pairs = [];
+        if (docSnapshot.exists) {
+          var data = docSnapshot.data() as Map<String, dynamic>;
+          List<dynamic> pairsData = data['pairs'] as List<dynamic>;
+          List<List<String>> pairs = [];
 
-        for (var pair in pairsData) {
-          List<String> pairValues = [];
-          if (pair.containsKey('pair1')) pairValues.add(pair['pair1'] ?? '');
-          if (pair.containsKey('pair2')) pairValues.add(pair['pair2'] ?? '');
-          if (pair.containsKey('pair3')) pairValues.add(pair['pair3'] ?? '');
-          if (pair.containsKey('pair4')) pairValues.add(pair['pair4'] ?? '');
-          if (pair.containsKey('pair5')) pairValues.add(pair['pair5'] ?? '');
-          if (pair.containsKey('pair6')) pairValues.add(pair['pair6'] ?? '');
-          pairs.add(pairValues);
+          for (var pair in pairsData) {
+            List<String> pairValues = [];
+            if (pair.containsKey('pair1')) pairValues.add(pair['pair1'] ?? '');
+            if (pair.containsKey('pair2')) pairValues.add(pair['pair2'] ?? '');
+            if (pair.containsKey('pair3')) pairValues.add(pair['pair3'] ?? '');
+            if (pair.containsKey('pair4')) pairValues.add(pair['pair4'] ?? '');
+            if (pair.containsKey('pair5')) pairValues.add(pair['pair5'] ?? '');
+            if (pair.containsKey('pair6')) pairValues.add(pair['pair6'] ?? '');
+            pairs.add(pairValues);
+          }
+          return pairs;
         }
-        return pairs;
       }
+    } catch (e) {
+      print('Error fetching pairs for $qCounter: $e');
     }
-  } catch (e) {
-    print('Error fetching pairs for $qCounter: $e');
+    return [];
   }
-  return [];
-}
-
-
 }

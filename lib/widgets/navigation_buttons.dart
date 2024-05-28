@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:surveys_app_project/colors.dart';
-import 'package:surveys_app_project/pages/finish_survey.dart';
 
 class NavigationButtons extends StatelessWidget {
   final int currentPage;
@@ -8,7 +7,8 @@ class NavigationButtons extends StatelessWidget {
   final VoidCallback onPrevious;
   final VoidCallback onNext;
   final bool isAnswerSelected;
-  final bool isNextButtonEnabled; // Track if the Next button should be enabled
+  final bool isNextButtonEnabled;
+  final VoidCallback onSubmit; // Add onSubmit callback
 
   NavigationButtons({
     required this.currentPage,
@@ -16,7 +16,8 @@ class NavigationButtons extends StatelessWidget {
     required this.onPrevious,
     required this.onNext,
     required this.isAnswerSelected,
-    required this.isNextButtonEnabled, // Initialize isNextButtonEnabled
+    required this.isNextButtonEnabled,
+    required this.onSubmit, // Initialize onSubmit
   });
 
   @override
@@ -44,7 +45,7 @@ class NavigationButtons extends StatelessWidget {
           right: 0,
           child: Center(
             child: Container(
-              height: 50, // Match the height of the back button
+              height: 50,
               decoration: BoxDecoration(
                 border: Border.all(
                   color: isNextButtonEnabled ? AppColors.facebookBlue : Colors.orange,
@@ -58,19 +59,12 @@ class NavigationButtons extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: isNextButtonEnabled
                       ? currentPage == totalPages - 1
-                          ? () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => SubmissionSuccessScreen()),
-                              );
-                            }
+                          ? onSubmit // Call onSubmit instead of navigating directly
                           : onNext
-                      : null, // Disable button if not enabled
+                      : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors
-                        .transparent, // Transparent to show the Container color
-                    shadowColor: Colors.transparent, // Remove shadow if needed
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25.0),
                     ),
@@ -93,5 +87,3 @@ class NavigationButtons extends StatelessWidget {
     );
   }
 }
-
-
