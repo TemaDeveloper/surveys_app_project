@@ -5,7 +5,6 @@ import 'package:surveys_app_project/manager/shared_pref_manager.dart';
 import 'package:surveys_app_project/models/user.dart';
 import 'package:surveys_app_project/pages/waiting_page.dart';
 import 'package:surveys_app_project/user_auth/firebase_auth.dart';
-import 'package:surveys_app_project/user_auth/toast.dart';
 import '../pages/questioner.dart';
 import 'package:surveys_app_project/colors.dart';
 
@@ -51,19 +50,12 @@ class _AuthPageState extends State<AuthPage>
 
   void _register() {
     if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration Successful')),
-      );
-
       _signUp();
     }
   }
 
   void _login() {
     if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Signing in Successful')),
-      );
       _signIn();
     }
   }
@@ -354,7 +346,7 @@ class _AuthPageState extends State<AuthPage>
       isSigningUp = false;
     });
     if (user != null) {
-      showToast(message: "User is successfully created");
+      SnackBar(content: Text('User is successfully created'));
       _userDataManager.saveUserData(user.uid, email);
       _addUser(user); // Pass the user to _addUser
       Navigator.push(
@@ -362,7 +354,8 @@ class _AuthPageState extends State<AuthPage>
         MaterialPageRoute(builder: (context) => QuestionnaireScreen()),
       );
     } else {
-      showToast(message: "Some error happened");
+      SnackBar(content: Text('Some error happened'));
+
     }
   }
 
@@ -381,7 +374,7 @@ class _AuthPageState extends State<AuthPage>
   });
 
   if (user != null) {
-    showToast(message: "User is successfully signed in");
+    SnackBar(content: Text('User is successfully signed in'));
     _userDataManager.saveUserData(user.uid, email);
 
     // Check the survey status
@@ -399,7 +392,7 @@ class _AuthPageState extends State<AuthPage>
       );
     }
   } else {
-    showToast(message: "Some error occurred");
+    SnackBar(content: Text('Some error occurred'));
   }
 }
 

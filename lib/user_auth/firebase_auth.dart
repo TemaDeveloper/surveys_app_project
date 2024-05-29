@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:surveys_app_project/user_auth/toast.dart';
+import 'package:flutter/material.dart';
 
-class FirebaseAuthService {
+class FirebaseAuthService { 
 
   FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -13,9 +13,11 @@ class FirebaseAuthService {
     } on FirebaseAuthException catch (e) {
 
       if (e.code == 'email-already-in-use') {
-        showToast(message: 'The email address is already in use.');
+        SnackBar(content: Text('The email address is already in use.'));
       } else {
-        showToast(message: 'An error occurred: ${e.code}');
+        SnackBar(content: Text('An error occurred'));
+        print('An error occurred: ${e.code}');
+
       }
     }
     return null;
@@ -29,9 +31,10 @@ class FirebaseAuthService {
       return credential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
-        showToast(message: 'Invalid email or password.');
+        SnackBar(content: Text('Invalid email or password.'));
       } else {
-        showToast(message: 'An error occurred: ${e.code}');
+        SnackBar(content: Text('An error occurred.'));
+        print('${e.code}');
       }
 
     }

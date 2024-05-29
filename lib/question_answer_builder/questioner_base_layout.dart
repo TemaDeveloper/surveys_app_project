@@ -111,7 +111,7 @@ class _QuestionPageState extends State<QuestionPage> {
         Wrap(
           spacing: 10.0,
           runSpacing: 10.0,
-          children: widget.questionAnswer.answers!.map((answer) {
+          children: widget.questionAnswer.answers.map((answer) {
             return AnswerOption(
               answer: answer,
               isSelected: selectedAnswers!.contains(answer),

@@ -9,6 +9,7 @@ import 'package:surveys_app_project/pages/waiting_page.dart';
 class AuthWrapper extends StatelessWidget {
   Future<bool> checkSurveyCompleted(String userId) async {
     final userCollection = FirebaseFirestore.instance.collection('users');
+  
 
     DocumentSnapshot doc = await userCollection.doc(userId).get();
     if (doc.exists) {

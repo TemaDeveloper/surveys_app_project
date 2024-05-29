@@ -38,7 +38,7 @@ class AnswerOption extends StatelessWidget {
             FutureBuilder<String>(
               future: getImageUrl(
                 isSelected ? 'active_icons' : 'inactive_icons', 
-                '${answer}_${isSelected ? "active" : "inactive"}.png'
+                '${answer}_${isSelected ? "active" : "inactive"}.png' 
               ),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
