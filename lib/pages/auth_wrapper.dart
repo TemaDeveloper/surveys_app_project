@@ -6,10 +6,18 @@ import 'package:surveys_app_project/pages/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:surveys_app_project/pages/waiting_page.dart';
 
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends StatefulWidget {
+  State<AuthWrapper> createState() => AuthWrapperState();
+}
+
+class AuthWrapperState extends State<AuthWrapper> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   Future<bool> checkSurveyCompleted(String userId) async {
     final userCollection = FirebaseFirestore.instance.collection('users');
-  
 
     DocumentSnapshot doc = await userCollection.doc(userId).get();
     if (doc.exists) {
@@ -21,7 +29,7 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    UserDataManager _userDataManager = UserDataManager();
+    UserDataManager userDataManager = UserDataManager();
 
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
@@ -32,7 +40,7 @@ class AuthWrapper extends StatelessWidget {
 
         if (snapshot.hasData) {
           return FutureBuilder<String>(
-            future: _userDataManager.getUid(),
+            future: userDataManager.getUid(),
             builder: (context, uidSnapshot) {
               if (uidSnapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
@@ -48,12 +56,14 @@ class AuthWrapper extends StatelessWidget {
                   return FutureBuilder<bool>(
                     future: checkSurveyCompleted(userId),
                     builder: (context, surveySnapshot) {
-                      if (surveySnapshot.connectionState == ConnectionState.waiting) {
+                      if (surveySnapshot.connectionState ==
+                          ConnectionState.waiting) {
                         return Center(child: CircularProgressIndicator());
                       }
 
                       if (surveySnapshot.hasError) {
-                        return Center(child: Text('Error: ${surveySnapshot.error}'));
+                        return Center(
+                            child: Text('Error: ${surveySnapshot.error}'));
                       }
 
                       if (surveySnapshot.hasData) {
@@ -61,6 +71,7 @@ class AuthWrapper extends StatelessWidget {
                         if (surveyCompleted) {
                           return CompletedSurveyPage();
                         } else {
+                          
                           return QuestionnaireScreen();
                         }
                       }

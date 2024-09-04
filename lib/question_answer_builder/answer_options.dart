@@ -5,6 +5,7 @@ Future<String> getImageUrl(String folder, String fileName) async {
   try {
     final Reference ref = FirebaseStorage.instance.ref().child(folder).child(fileName);
     String url = await ref.getDownloadURL();
+    print("url = ${url}");
     return url;
   } catch (e) {
     print('Error getting image URL: $e');

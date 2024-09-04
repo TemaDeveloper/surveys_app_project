@@ -41,12 +41,17 @@ class _AuthPageState extends State<AuthPage>
   bool _isSigning = false;
 
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true; 
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _zipCodeController = TextEditingController();
 
   void _register() {
     if (_formKey.currentState!.validate()) {
@@ -68,199 +73,157 @@ class _AuthPageState extends State<AuthPage>
 
   @override
   void dispose() {
-    _tabController?.dispose();
+     _tabController?.dispose();
     _nameController.dispose();
-    _emailController.dispose();
     _phoneController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _zipCodeController.dispose();
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(250.0), // Adjust the height as needed
-        child: AppBar(
-          flexibleSpace: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                "assets/nightcaps_logo.png",
-                fit: BoxFit.contain,
-                height: 200, // Adjust the height as needed
-              ),
-            ],
-          ),
-          bottom: TabBar(
-            controller: _tabController,
-            labelColor: AppColors.facebookBlue,
-            dividerColor: AppColors.facebookBlue,
-            indicatorColor: AppColors.facebookBlue,
-            labelStyle: TextStyle(
-              fontFamily: 'arial_rounded',
-              fontSize: 16,
+   void _forgotPassword() {
+    if (_emailController.text.isNotEmpty) {
+      //_auth.sendPasswordResetEmail(_emailController.text);
+      // Show confirmation message or navigate accordingly
+    } else {
+      // Show a message to enter email first
+    }
+  }
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: PreferredSize(
+      preferredSize: Size.fromHeight(250.0), // Adjust the height as needed
+      child: AppBar(
+        flexibleSpace: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              "assets/nightcaps_logo.png",
+              fit: BoxFit.contain,
+              height: 200, // Adjust the height as needed
             ),
-            tabs: [
-              Tab(text: 'Create Account'),
-              Tab(text: 'Log In'),
-            ],
+          ],
+        ),
+      ),
+    ),
+    body: Center(
+      child: SingleChildScrollView(
+        child: Card(
+          elevation: 4.0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Ensure card height matches content height
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TabBar(
+                  controller: _tabController,
+                  labelColor: AppColors.facebookBlue,
+                  indicatorColor: AppColors.facebookBlue,
+                  labelStyle: TextStyle(
+                    fontFamily: 'arial_rounded',
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold, // Bold tabs for Sign In / Create Account
+                  ),
+                  tabs: [
+                    Tab(text: 'Sign In'),
+                    Tab(text: 'Create Account'),
+                  ],
+                ),
+                SizedBox(height: 16.0), // Add spacing between the TabBar and the content
+                // No Flexible or Expanded here, let the TabBarView take the natural height
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6, // Adjust height as needed
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildLoginForm(),
+                      _buildCreateAccountForm(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+    ),
+  );
+}
+
+
+
+Widget _buildLoginForm() {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Form(
+      key: _formKey,
+      child: ListView(
         children: [
-          _buildCreateAccountForm(),
-          _buildLoginForm(),
+          _buildTextFormField(
+            controller: _emailController,
+            labelText: 'Email',
+            hintText: 'Enter your Email',
+            keyboardType: TextInputType.emailAddress,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your email';
+              } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                return 'Please enter a valid email';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 20),
+          _buildTextFormField(
+            controller: _passwordController,
+            labelText: 'Password',
+            hintText: 'Enter your Password',
+            obscureText: _obscurePassword,
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword ? Icons.visibility : Icons.visibility_off,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your password';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 20),
+          _buildStyledButton(
+            text: "Sign in",
+            onPressed: _login,
+          ),
+          SizedBox(height: 20),
+          TextButton(
+            onPressed: _forgotPassword,
+            child: Text("Forgot your password?", style: TextStyle(color: AppColors.facebookBlue)),
+          ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildCreateAccountForm() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Form(
-        key: _formKey,
-        child: ListView(
-          children: <Widget>[
-            _buildTextFormField(
-              controller: _nameController,
-              labelText: 'Name',
-              hintText: 'Enter your name',
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your name';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 20),
-            _buildTextFormField(
-              controller: _phoneController,
-              labelText: 'Phone no.',
-              hintText: 'Enter your phone',
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your phone number';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 20),
-            _buildTextFormField(
-              controller: _emailController,
-              labelText: 'Email',
-              hintText: 'Enter your email',
-              keyboardType: TextInputType.emailAddress,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your email';
-                } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                  return 'Please enter a valid email';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 20),
-            _buildTextFormField(
-              controller: _passwordController,
-              labelText: 'Password',
-              hintText: 'Enter your password',
-              obscureText: _obscurePassword,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _obscurePassword = !_obscurePassword;
-                  });
-                },
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your password';
-                } else if (value.length < 6) {
-                  return 'Password must be at least 6 characters long';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 20),
-            _buildStyledButton(
-              text: "Sign up",
-              onPressed: _register,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoginForm() {
-    return Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            _buildTextFormField(
-              controller: _emailController,
-              labelText: 'Email',
-              hintText: 'Enter your email',
-              keyboardType: TextInputType.emailAddress,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your email';
-                } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                  return 'Please enter a valid email';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 20),
-            _buildTextFormField(
-              controller: _passwordController,
-              labelText: 'Password',
-              hintText: 'Enter your password',
-              obscureText: _obscurePassword,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _obscurePassword = !_obscurePassword;
-                  });
-                },
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your password';
-                } else if (value.length < 6) {
-                  return 'Password must be at least 6 characters long';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 20),
-            _buildStyledButton(
-              text: "Log in",
-              onPressed: () {
-                _login();
-              },
-            ),
-            SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextFormField({
+Widget _buildTextFormField({
     required TextEditingController controller,
     required String labelText,
     required String hintText,
@@ -331,6 +294,133 @@ class _AuthPageState extends State<AuthPage>
       ),
     );
   }
+
+Widget _buildCreateAccountForm() {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Form(
+      key: _formKey,
+      child: ListView(
+        children: [
+          _buildTextFormField(
+            controller: _emailController,
+            labelText: 'Email',
+            hintText: 'Enter your Email',
+            keyboardType: TextInputType.emailAddress,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your email';
+              } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                return 'Please enter a valid email';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 20),
+          _buildTextFormField(
+            controller: _passwordController,
+            labelText: 'Password',
+            hintText: 'Enter your Password',
+            obscureText: _obscurePassword,
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword ? Icons.visibility : Icons.visibility_off,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your password';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 20),
+          _buildTextFormField(
+            controller: _confirmPasswordController,
+            labelText: 'Confirm Password',
+            hintText: 'Please confirm your Password',
+            obscureText: _obscureConfirmPassword,
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscureConfirmPassword = !_obscureConfirmPassword;
+                });
+              },
+            ),
+            validator: (value) {
+              if (value != _passwordController.text) {
+                return 'Passwords do not match';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 20),
+          _buildTextFormField(
+            controller: _phoneController,
+            labelText: 'Phone Number',
+            hintText: 'Enter your Phone Number',
+            keyboardType: TextInputType.phone,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your phone number';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 20),
+          _buildTextFormField(
+            controller: _firstNameController,
+            labelText: 'First Name',
+            hintText: 'Enter your first name',
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your first name';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 20),
+          _buildTextFormField(
+            controller: _lastNameController,
+            labelText: 'Last Name',
+            hintText: 'Enter your last name',
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your last name';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 20),
+          _buildTextFormField(
+            controller: _zipCodeController,
+            labelText: 'Zip Code',
+            hintText: 'Enter zip (or postal code)',
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your zip code';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 20),
+          _buildStyledButton(
+            text: "Create Account",
+            onPressed: _register,
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
   void _signUp() async {
     setState(() {
@@ -416,11 +506,15 @@ Future<bool?> getSurveyCompletedStatus(User user) async {
     String username = _nameController.text;
     String phone = _phoneController.text;
     String email = _emailController.text;
+    String lastName = _lastNameController.text;
+    String zip = _zipCodeController.text;
 
     saveUserToFirestore(user, UserModel(
-      name: username,
+      first_name: username,
+      last_name: lastName,
       email: email,
       phone: phone,
+      zip: zip,
       date: Timestamp.now(),
       survey_completed: false,
     ));
@@ -434,7 +528,9 @@ Future<void> saveUserToFirestore(User userauth, UserModel user) async {
   try {
     final newUser = UserModel(
       id: userId,
-      name: user.name,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      zip: user.zip,
       email: user.email,
       date: user.date,
       phone: user.phone,

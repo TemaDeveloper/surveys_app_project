@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:surveys_app_project/colors.dart';
 import 'package:surveys_app_project/models/usaers_answers.dart';
 import 'package:surveys_app_project/pages/waiting_page.dart';
 
