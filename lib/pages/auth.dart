@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:surveys_app_project/manager/shared_pref_manager.dart';
 import 'package:surveys_app_project/models/user.dart';
+import 'package:surveys_app_project/pages/phone_otp.dart';
 import 'package:surveys_app_project/pages/waiting_page.dart';
 import 'package:surveys_app_project/user_auth/firebase_auth.dart';
 import '../pages/questioner.dart';
@@ -43,7 +44,8 @@ class _AuthPageState extends State<AuthPage>
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true; 
 
-  final _formKey = GlobalKey<FormState>();
+  final _formKey1 = GlobalKey<FormState>();
+  final _formKey2 = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -54,13 +56,13 @@ class _AuthPageState extends State<AuthPage>
   final TextEditingController _zipCodeController = TextEditingController();
 
   void _register() {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey1.currentState!.validate()) {
       _signUp();
     }
   }
 
   void _login() {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey2.currentState!.validate()) {
       _signIn();
     }
   }
@@ -73,7 +75,7 @@ class _AuthPageState extends State<AuthPage>
 
   @override
   void dispose() {
-     _tabController?.dispose();
+    _tabController?.dispose();
     _nameController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
@@ -161,13 +163,11 @@ Widget build(BuildContext context) {
   );
 }
 
-
-
 Widget _buildLoginForm() {
   return Padding(
     padding: const EdgeInsets.all(16.0),
     child: Form(
-      key: _formKey,
+      key: _formKey2,
       child: ListView(
         children: [
           _buildTextFormField(
@@ -299,7 +299,7 @@ Widget _buildCreateAccountForm() {
   return Padding(
     padding: const EdgeInsets.all(16.0),
     child: Form(
-      key: _formKey,
+      key: _formKey1,
       child: ListView(
         children: [
           _buildTextFormField(
@@ -441,7 +441,7 @@ Widget _buildCreateAccountForm() {
       _addUser(user); // Pass the user to _addUser
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => QuestionnaireScreen()),
+        MaterialPageRoute(builder: (context) => const PhoneOTPVerification()),
       );
     } else {
       SnackBar(content: Text('Some error happened'));
@@ -501,16 +501,15 @@ Future<bool?> getSurveyCompletedStatus(User user) async {
   }
 }
 
-
   void _addUser(User user) {
-    String username = _nameController.text;
+    String first_name = _nameController.text;
     String phone = _phoneController.text;
     String email = _emailController.text;
     String lastName = _lastNameController.text;
     String zip = _zipCodeController.text;
 
     saveUserToFirestore(user, UserModel(
-      first_name: username,
+      first_name: first_name,
       last_name: lastName,
       email: email,
       phone: phone,

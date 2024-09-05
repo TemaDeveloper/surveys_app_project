@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -14,6 +15,55 @@
     This is a placeholder for base href that will be replaced by the value of
     the `--base-href` argument provided to `flutter build`.
   -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCth5aXXiUyRDIHDVdczjiPWWE2LslZ7M4",
+      authDomain: "nightcaps-75442.firebaseapp.com",
+      databaseURL: "https://nightcaps-75442-default-rtdb.firebaseio.com",
+      projectId: "nightcaps-75442",
+      storageBucket: "nightcaps-75442.appspot.com",
+      messagingSenderId: "753614534084",
+      appId: "1:753614534084:web:bb583173dd924768aae091",
+      measurementId: "G-33TLWKTX6E",
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+<script src="flutter.js"></script>
+<script>
+  (function () {
+    var engineInitializer = {
+      initializeEngine: function (config) {
+        var app = config.app || 'main.dart.js';
+        var useCanvasKit = config.renderer === 'canvaskit';
+        var src = useCanvasKit ? 'canvaskit.js' : 'flutter_web.js';
+        var script = document.createElement('script');
+        script.src = src;
+        script.onload = function () {
+          if (useCanvasKit) {
+            window.flutterCanvasKit = true;
+          }
+          window.flutterApp(app);
+        };
+        document.head.appendChild(script);
+      }
+    };
+
+    // Initialize the engine with 'html' renderer (or 'canvaskit' if preferred)
+    engineInitializer.initializeEngine({
+      renderer: 'html', // Change to 'canvaskit' if you want CanvasKit rendering
+      app: 'main.dart.js'
+    });
+  })();
+</script>
+
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
@@ -27,12 +77,16 @@
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png" />
 
   <title>surveys_app_project</title>
   <link rel="manifest" href="manifest.json">
 </head>
+
 <body>
   <script src="flutter_bootstrap.js" async></script>
+  <div id="recaptcha"></div> <!-- Container for reCAPTCHA -->
+  
 </body>
+
 </html>

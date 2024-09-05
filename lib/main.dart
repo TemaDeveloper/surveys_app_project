@@ -6,7 +6,6 @@ import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
   // Log Firebase initialization
   print("Initializing Firebase...");
   if (kIsWeb) {

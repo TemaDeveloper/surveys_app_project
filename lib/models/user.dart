@@ -16,7 +16,7 @@ class UserModel {
       DocumentSnapshot<Map<String, dynamic>> snapshot) {
     return UserModel(
         id: snapshot['id'],
-        first_name: snapshot['name'],
+        first_name: snapshot['first_name'],
         last_name: snapshot['last_name'],
         zip: snapshot['zip'],
         email: snapshot['email'],
@@ -28,8 +28,9 @@ class UserModel {
 
   Map<String, dynamic> toJson() {
     return {
-      "name": first_name,
+      "first_name": first_name,
       "last_name": last_name,
+      "zip": zip,
       "email": email,
       "last_entered": date,
       "phone": phone,
