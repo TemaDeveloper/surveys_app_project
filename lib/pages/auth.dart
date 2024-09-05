@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:surveys_app_project/manager/shared_pref_manager.dart';
 import 'package:surveys_app_project/models/user.dart';
+import 'package:surveys_app_project/pages/email_verification.dart';
 import 'package:surveys_app_project/pages/phone_otp.dart';
 import 'package:surveys_app_project/pages/waiting_page.dart';
 import 'package:surveys_app_project/user_auth/firebase_auth.dart';
@@ -429,6 +430,7 @@ Widget _buildCreateAccountForm() {
 
     String email = _emailController.text;
     String password = _passwordController.text;
+    String phone = _phoneController.text;
 
     User? user = await _auth.signUpWithEmailAndPassword(email, password);
 
@@ -441,7 +443,7 @@ Widget _buildCreateAccountForm() {
       _addUser(user); // Pass the user to _addUser
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const PhoneOTPVerification()),
+        MaterialPageRoute(builder: (context) => PhoneOTPVerification(phoneNumber: phone)),
       );
     } else {
       SnackBar(content: Text('Some error happened'));
@@ -476,10 +478,17 @@ Widget _buildCreateAccountForm() {
         MaterialPageRoute(builder: (context) => CompletedSurveyPage()),
       );
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => QuestionnaireScreen()),
-      );
+      if (!user.emailVerified){
+           Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => EmailVerificationPage(email: email,)),
+        );
+      }else{
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => QuestionnaireScreen()));
+      }
+     
     }
   } else {
     SnackBar(content: Text('Some error occurred'));
